@@ -14,6 +14,7 @@ interface ChatWidgetProps {
 
 export default function ChatWidget({ config }: ChatWidgetProps) {
   const [isOpen, setIsOpen] = useState(false);
+  const [unreadCount, setUnreadCount] = useState(0);
   
   // Merge with default config
   const fullConfig = {
@@ -38,6 +39,7 @@ export default function ChatWidget({ config }: ChatWidgetProps) {
     systemPrompt: fullConfig.systemPrompt,
     enableHistory: fullConfig.enableHistory,
     maxHistoryMessages: fullConfig.maxHistoryMessages,
+    language: fullConfig.language,
   });
 
   // Apply theme on mount and when theme changes
@@ -63,6 +65,13 @@ export default function ChatWidget({ config }: ChatWidgetProps) {
         isStreaming: true,
       });
 
+      // If chat is closed when bot responds, increment unread count
+      const checkAndIncrementUnread = () => {
+        if (!isOpen) {
+          setUnreadCount(prev => prev + 1);
+        }
+      };
+
       try {
         let accumulatedContent = '';
 
@@ -82,6 +91,9 @@ export default function ChatWidget({ config }: ChatWidgetProps) {
               isStreaming: false,
             });
             setLoading(false);
+            
+            // Check if chat is closed and increment unread count
+            checkAndIncrementUnread();
           },
           onError: (err) => {
             setError(err.message);
@@ -97,8 +109,17 @@ export default function ChatWidget({ config }: ChatWidgetProps) {
         setLoading(false);
       }
     },
-    [addMessage, updateMessage, setLoading, setError, sendMessage]
+    [addMessage, updateMessage, setLoading, setError, sendMessage, isOpen]
   );
+
+  // Clear unread count when chat is opened
+  const handleToggleChat = () => {
+    setIsOpen(!isOpen);
+    if (!isOpen) {
+      // Opening chat - clear unread count
+      setUnreadCount(0);
+    }
+  };
 
   const iconPositionClasses = getPositionClasses(fullConfig.theme.position);
   const chatBoxPositionClasses = getChatBoxPositionClasses(fullConfig.theme.position);
@@ -119,6 +140,7 @@ export default function ChatWidget({ config }: ChatWidgetProps) {
             userMessageBg={fullConfig.theme.userMessageBg}
             botMessageBg={fullConfig.theme.botMessageBg}
             welcomeMessage={fullConfig.welcomeMessage}
+            botAvatarUrl={fullConfig.botIconUrl}
           />
         </div>
       )}
@@ -127,8 +149,10 @@ export default function ChatWidget({ config }: ChatWidgetProps) {
       <div className={`fixed z-50 ${iconPositionClasses}`}>
         <ChatIcon
           isOpen={isOpen}
-          onClick={() => setIsOpen(!isOpen)}
+          onClick={handleToggleChat}
           primaryColor={fullConfig.theme.primaryColor}
+          hasUnreadMessages={unreadCount > 0}
+          unreadCount={unreadCount}
         />
 
         {/* Error Toast */}

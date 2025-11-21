@@ -2,6 +2,7 @@
 
 import { useEffect, useRef, useState } from 'react';
 import { X, Minimize2, Maximize2 } from 'lucide-react';
+import Image from 'next/image';
 import ChatMessage from './ChatMessage';
 import ChatInput from './ChatInput';
 import SuggestionChips from './SuggestionChips';
@@ -18,6 +19,7 @@ interface ChatBoxProps {
   userMessageBg?: string;
   botMessageBg?: string;
   welcomeMessage?: string;
+  botAvatarUrl?: string;
 }
 
 export default function ChatBox({
@@ -31,6 +33,7 @@ export default function ChatBox({
   userMessageBg,
   botMessageBg,
   welcomeMessage,
+  botAvatarUrl,
 }: ChatBoxProps) {
   const [isMinimized, setIsMinimized] = useState(false);
   const [showSuggestions, setShowSuggestions] = useState(true);
@@ -127,14 +130,26 @@ export default function ChatBox({
                 botName={botName}
                 userMessageBg={userMessageBg}
                 botMessageBg={botMessageBg}
+                botAvatarUrl={botAvatarUrl}
               />
             ))}
 
             {/* Loading indicator */}
             {isLoading && messages[messages.length - 1]?.role !== 'assistant' && (
               <div className="flex gap-3">
-                <div className="flex h-8 w-8 shrink-0 items-center justify-center rounded-full bg-gray-300">
-                  <span className="text-xs">🤖</span>
+                <div className="flex h-8 w-8 shrink-0 items-center justify-center rounded-full bg-gray-300 overflow-hidden">
+                  {botAvatarUrl ? (
+                    <Image
+                      src={botAvatarUrl}
+                      alt={`${botName} avatar`}
+                      width={32}
+                      height={32}
+                      className="h-full w-full object-cover"
+                      unoptimized
+                    />
+                  ) : (
+                    <span className="text-xs">🤖</span>
+                  )}
                 </div>
                 <div className="flex items-center gap-1 rounded-2xl bg-gray-200 px-4 py-3">
                   <div className="h-2 w-2 rounded-full bg-gray-500 animate-bounce" style={{ animationDelay: '0ms' }} />

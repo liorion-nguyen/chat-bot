@@ -1,5 +1,5 @@
 import { useCallback } from 'react';
-import { Message } from '@/types';
+import { Message, languageInstructions } from '@/types';
 
 interface UseGeminiProps {
   apiKey: string;
@@ -7,6 +7,7 @@ interface UseGeminiProps {
   systemPrompt?: string;
   enableHistory?: boolean;
   maxHistoryMessages?: number;
+  language?: string;
 }
 
 interface SendMessageOptions {
@@ -22,7 +23,8 @@ export function useGemini({
   model = 'gemini-2.5-flash-lite', 
   systemPrompt,
   enableHistory = true,
-  maxHistoryMessages = 20 
+  maxHistoryMessages = 20,
+  language = 'auto'
 }: UseGeminiProps) {
   const sendMessage = useCallback(
     async ({ message, conversationHistory = [], onStream, onComplete, onError }: SendMessageOptions) => {
@@ -32,11 +34,17 @@ export function useGemini({
         // Prepare the request payload
         const contents = [];
         
+        // Build full system prompt with language instruction
+        const languageInstruction = languageInstructions[language as keyof typeof languageInstructions] || '';
+        const fullSystemPrompt = languageInstruction 
+          ? `${languageInstruction}\n\n${systemPrompt || ''}`
+          : systemPrompt;
+        
         // Add system instruction if provided
-        if (systemPrompt) {
+        if (fullSystemPrompt) {
           contents.push({
             role: 'user',
-            parts: [{ text: systemPrompt }]
+            parts: [{ text: fullSystemPrompt }]
           });
           contents.push({
             role: 'model',
@@ -150,7 +158,7 @@ export function useGemini({
         throw err;
       }
     },
-    [apiKey, model, systemPrompt, enableHistory, maxHistoryMessages]
+    [apiKey, model, systemPrompt, enableHistory, maxHistoryMessages, language]
   );
 
   return { sendMessage };

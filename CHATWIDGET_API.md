@@ -28,6 +28,8 @@ The widget automatically displays when you navigate to this route with the appro
 | `suggestions` | string | `"Hello!,How can you help me?,Tell me more"` | Comma-separated suggestions |
 | `enableHistory` | boolean | `true` | Enable conversation context (bot remembers previous messages) |
 | `maxHistoryMessages` | number | `20` | Maximum number of messages to include in context |
+| `language` | string | `auto` | Response language: `auto`, `vi`, `en`, `zh`, `ja`, `ko`, `fr`, `de`, `es` |
+| `botIconUrl` | string | _(empty)_ | Custom avatar URL for bot messages (NOT corner icon, displays next to bot messages) |
 
 #### Theme Configuration
 

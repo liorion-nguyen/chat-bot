@@ -3,19 +3,22 @@
 import { Message } from '@/types';
 import MessageMarkdown from '@/components/MarkdownRenderer/MessageMarkdown';
 import { Bot, User } from 'lucide-react';
+import Image from 'next/image';
 
 interface ChatMessageProps {
   message: Message;
   botName: string;
   userMessageBg?: string;
   botMessageBg?: string;
+  botAvatarUrl?: string;
 }
 
 export default function ChatMessage({ 
   message, 
   botName,
   userMessageBg = '#4F46E5',
-  botMessageBg = '#F3F4F6'
+  botMessageBg = '#F3F4F6',
+  botAvatarUrl
 }: ChatMessageProps) {
   const isUser = message.role === 'user';
   
@@ -23,12 +26,21 @@ export default function ChatMessage({
     <div className={`flex gap-3 ${isUser ? 'flex-row-reverse' : 'flex-row'}`}>
       {/* Avatar */}
       <div 
-        className={`flex h-8 w-8 shrink-0 items-center justify-center rounded-full ${
+        className={`flex h-8 w-8 shrink-0 items-center justify-center rounded-full overflow-hidden ${
           isUser ? 'bg-gray-700' : 'bg-gray-300'
         }`}
       >
         {isUser ? (
           <User className="h-5 w-5 text-white" />
+        ) : botAvatarUrl ? (
+          <Image
+            src={botAvatarUrl}
+            alt={`${botName} avatar`}
+            width={32}
+            height={32}
+            className="h-full w-full object-cover"
+            unoptimized
+          />
         ) : (
           <Bot className="h-5 w-5 text-gray-700" />
         )}

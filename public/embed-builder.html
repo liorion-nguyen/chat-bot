@@ -335,6 +335,14 @@
             <input type="password" id="apiKey" placeholder="AIza... (để trống nếu dùng env)">
           </div>
 
+          <div class="form-group">
+            <label>🎨 URL Avatar Bot (trong tin nhắn)</label>
+            <input type="url" id="botIconUrl" placeholder="https://example.com/avatar.png (để trống dùng icon mặc định)">
+            <small style="display: block; margin-top: 5px; color: #666; font-size: 12px;">
+              Avatar sẽ hiển thị bên cạnh tin nhắn của bot (KHÔNG phải icon góc màn hình). Nên dùng ảnh vuông 64x64px hoặc lớn hơn.
+            </small>
+          </div>
+
           <!-- History Settings -->
           <div class="form-group checkbox-group">
             <input type="checkbox" id="enableHistory" checked>
@@ -344,6 +352,21 @@
           <div class="form-group" id="historyLimitGroup">
             <label>📝 Số tin nhắn tối đa nhớ</label>
             <input type="number" id="maxHistoryMessages" value="20" min="5" max="100">
+          </div>
+
+          <div class="form-group">
+            <label>🌍 Ngôn ngữ trả lời</label>
+            <select id="language">
+              <option value="auto">Tự động (Auto)</option>
+              <option value="vi">Tiếng Việt (Vietnamese)</option>
+              <option value="en">Tiếng Anh (English)</option>
+              <option value="zh">Tiếng Trung (Chinese)</option>
+              <option value="ja">Tiếng Nhật (Japanese)</option>
+              <option value="ko">Tiếng Hàn (Korean)</option>
+              <option value="fr">Tiếng Pháp (French)</option>
+              <option value="de">Tiếng Đức (German)</option>
+              <option value="es">Tiếng Tây Ban Nha (Spanish)</option>
+            </select>
           </div>
         </div>
 
@@ -478,6 +501,8 @@
         apiKey: document.getElementById('apiKey').value,
         enableHistory: document.getElementById('enableHistory').checked,
         maxHistoryMessages: document.getElementById('maxHistoryMessages').value,
+        language: document.getElementById('language').value,
+        botIconUrl: document.getElementById('botIconUrl').value,
         primaryColor: document.getElementById('primaryColor').value,
         userMessageBg: document.getElementById('userMessageBg').value,
         botMessageBg: document.getElementById('botMessageBg').value,
@@ -498,10 +523,15 @@
         position: config.position,
         enableHistory: config.enableHistory,
         maxHistoryMessages: config.maxHistoryMessages,
+        language: config.language,
       });
 
       if (config.apiKey) {
         params.append('apiKey', config.apiKey);
+      }
+
+      if (config.botIconUrl) {
+        params.append('botIconUrl', config.botIconUrl);
       }
 
       const baseUrl = window.location.origin;
@@ -593,6 +623,8 @@ const config = {
   position: '${config.position}',
   enableHistory: ${config.enableHistory},
   maxHistoryMessages: ${config.maxHistoryMessages},
+  language: '${config.language}',
+  botIconUrl: '${config.botIconUrl}',
 };
 
 // Build chatbot URL
@@ -610,6 +642,8 @@ const chatbotUrl = computed(() => {
     position: config.position,
     enableHistory: config.enableHistory,
     maxHistoryMessages: config.maxHistoryMessages,
+    language: config.language,
+    botIconUrl: config.botIconUrl,
   });
   
   if (config.apiKey) {
@@ -674,6 +708,8 @@ export default {
         position: '${config.position}',
         enableHistory: ${config.enableHistory},
         maxHistoryMessages: ${config.maxHistoryMessages},
+        language: '${config.language}',
+        botIconUrl: '${config.botIconUrl}',
       }
     };
   },
@@ -693,6 +729,8 @@ export default {
         position: this.config.position,
         enableHistory: this.config.enableHistory,
         maxHistoryMessages: this.config.maxHistoryMessages,
+        language: this.config.language,
+        botIconUrl: this.config.botIconUrl,
       });
       
       if (this.config.apiKey) {

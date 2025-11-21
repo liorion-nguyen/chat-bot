@@ -21,6 +21,12 @@ export default function ChatWidgetPage() {
     // Parse history settings
     const enableHistory = searchParams.get('enableHistory') !== 'false'; // Default: true
     const maxHistoryMessages = parseInt(searchParams.get('maxHistoryMessages') || '20', 10);
+    
+    // Parse language setting
+    const language = searchParams.get('language') || 'auto';
+    
+    // Parse bot icon URL
+    const botIconUrl = searchParams.get('botIconUrl') || '';
 
     // Parse theme colors
     const primaryColor = searchParams.get('primaryColor') || defaultTheme.primaryColor;
@@ -63,7 +69,9 @@ export default function ChatWidgetPage() {
       model,
       enableHistory,
       maxHistoryMessages,
-    };
+      language,
+      botIconUrl,
+    } as ChatWidgetConfig;
 
     setConfig(widgetConfig);
   }, [searchParams]);
@@ -71,7 +79,7 @@ export default function ChatWidgetPage() {
   if (!config) return null;
 
   return (
-    <div className="h-screen w-full" style={{ backgroundColor: config.theme.backgroundColor }}>
+    <div className="h-screen w-full" style={{ backgroundColor: 'transparent' }}>
       {/* Optional: Display config info */}
 
       {/* Chat Widget */}

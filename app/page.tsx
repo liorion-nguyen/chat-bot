@@ -32,6 +32,7 @@ export default function Home() {
     model: 'gemini-2.5-flash-lite',
     enableHistory: true, // Enable conversation context
     maxHistoryMessages: 20, // Remember last 20 messages
+    language: 'auto', // Auto-detect language (or 'vi', 'en', etc.)
   };
 
   return (
