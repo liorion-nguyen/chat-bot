@@ -1,7 +1,7 @@
 'use client';
 
 import { useEffect, useRef, useState } from 'react';
-import { X, Minimize2, Maximize2 } from 'lucide-react';
+import { X, Minimize2, Maximize2, Trash2 } from 'lucide-react';
 import Image from 'next/image';
 import ChatMessage from './ChatMessage';
 import ChatInput from './ChatInput';
@@ -14,6 +14,8 @@ interface ChatBoxProps {
   suggestions: string[];
   onSendMessage: (message: string) => void;
   onClose: () => void;
+  onClearMessages: () => void;
+  onEditMessage: (messageId: string, newContent: string) => void;
   isLoading: boolean;
   primaryColor?: string;
   userMessageBg?: string;
@@ -28,6 +30,8 @@ export default function ChatBox({
   suggestions,
   onSendMessage,
   onClose,
+  onClearMessages,
+  onEditMessage,
   isLoading,
   primaryColor = '#4F46E5',
   userMessageBg,
@@ -65,28 +69,75 @@ export default function ChatBox({
 
   return (
     <div 
-      className="flex flex-col overflow-hidden rounded-2xl bg-white shadow-2xl transition-all duration-300"
+      className="flex flex-col rounded-2xl bg-white shadow-2xl transition-all duration-300"
       style={{ 
         width: '400px', 
         height: isMinimized ? '60px' : '600px',
         maxHeight: '85vh',
+        overflow: 'hidden',
       }}
     >
-      {/* Header */}
+      {/* Header - Enhanced Design */}
       <div 
-        className="flex items-center justify-between px-4 py-3 text-white"
+        className="relative flex items-center justify-between px-4 py-4 text-white shadow-md"
         style={{ backgroundColor: primaryColor }}
       >
-        <div className="flex items-center gap-2">
-          <div className="h-2.5 w-2.5 rounded-full bg-green-400 animate-pulse" />
-          <h3 className="font-semibold">{botName}</h3>
+        {/* Left: Bot Info with Avatar */}
+        <div className="flex items-center gap-3 flex-1 min-w-0">
+          {/* Bot Avatar */}
+          <div className="relative shrink-0">
+            <div className="h-10 w-10 rounded-full overflow-hidden bg-white/20 ring-2 ring-white/30 shadow-lg">
+              {botAvatarUrl ? (
+                <Image
+                  src={botAvatarUrl}
+                  alt={`${botName} avatar`}
+                  width={40}
+                  height={40}
+                  className="h-full w-full object-cover"
+                  unoptimized
+                />
+              ) : (
+                <div className="flex h-full w-full items-center justify-center bg-white/10 backdrop-blur-sm">
+                  <span className="text-xl">🤖</span>
+                </div>
+              )}
+            </div>
+            {/* Online Status Indicator */}
+            <div className="absolute -bottom-0.5 -right-0.5 h-3 w-3 rounded-full bg-green-400 ring-2 ring-white shadow-sm">
+              <div className="h-full w-full rounded-full bg-green-400 animate-pulse" />
+            </div>
+          </div>
+
+          {/* Bot Name & Status */}
+          <div className="flex flex-col min-w-0 flex-1">
+            <h3 className="font-semibold text-base truncate">{botName}</h3>
+            <div className="flex items-center gap-1.5">
+              {/* <div className="h-1.5 w-1.5 rounded-full bg-green-400" /> */}
+              <span className="text-xs text-white/90 font-medium">Online</span>
+            </div>
+          </div>
         </div>
         
-        <div className="flex items-center gap-2">
+        {/* Right: Action Buttons */}
+        <div className="flex items-center gap-1 shrink-0 ml-2">
+          {/* Clear messages button */}
+          {messages.length > 0 && (
+            <button
+              onClick={onClearMessages}
+              className="rounded-full p-2 transition-all duration-200 hover:bg-white/20 hover:scale-110 active:scale-95"
+              aria-label="Clear messages"
+              title="Clear all messages"
+            >
+              <Trash2 className="h-4 w-4" />
+            </button>
+          )}
+          
+          {/* Minimize/Maximize button */}
           <button
             onClick={() => setIsMinimized(!isMinimized)}
-            className="rounded-full p-1.5 transition-colors hover:bg-white/20"
+            className="rounded-full p-2 transition-all duration-200 hover:bg-white/20 hover:scale-110 active:scale-95"
             aria-label={isMinimized ? 'Maximize' : 'Minimize'}
+            title={isMinimized ? 'Maximize' : 'Minimize'}
           >
             {isMinimized ? (
               <Maximize2 className="h-4 w-4" />
@@ -94,14 +145,20 @@ export default function ChatBox({
               <Minimize2 className="h-4 w-4" />
             )}
           </button>
+          
+          {/* Close button */}
           <button
             onClick={onClose}
-            className="rounded-full p-1.5 transition-colors hover:bg-white/20"
+            className="rounded-full p-2 transition-all duration-200 hover:bg-white/20 hover:scale-110 active:scale-95"
             aria-label="Close chat"
+            title="Close chat"
           >
             <X className="h-4 w-4" />
           </button>
         </div>
+
+        {/* Subtle gradient overlay for depth */}
+        <div className="absolute inset-0 from-white/5 to-transparent pointer-events-none" style={{ background: 'linear-gradient(to bottom, rgba(255,255,255,0.05), transparent)' }} />
       </div>
 
       {/* Content - only show when not minimized */}
@@ -139,14 +196,15 @@ export default function ChatBox({
                   botAvatarUrl={botAvatarUrl}
                   primaryColor={primaryColor}
                   onSuggestionClick={handleSendMessage}
+                  onEditMessage={onEditMessage}
                   showSuggestions={isLastAssistantMessage}
                 />
               );
             })}
 
-            {/* Loading indicator */}
+            {/* Typing indicator - Enhanced version */}
             {isLoading && messages[messages.length - 1]?.role !== 'assistant' && (
-              <div className="flex gap-3">
+              <div className="flex gap-3 animate-fade-in">
                 <div className="flex h-8 w-8 shrink-0 items-center justify-center rounded-full bg-gray-300 overflow-hidden">
                   {botAvatarUrl ? (
                     <Image
@@ -161,10 +219,16 @@ export default function ChatBox({
                     <span className="text-xs">🤖</span>
                   )}
                 </div>
-                <div className="flex items-center gap-1 rounded-2xl bg-gray-200 px-4 py-3">
-                  <div className="h-2 w-2 rounded-full bg-gray-500 animate-bounce" style={{ animationDelay: '0ms' }} />
-                  <div className="h-2 w-2 rounded-full bg-gray-500 animate-bounce" style={{ animationDelay: '150ms' }} />
-                  <div className="h-2 w-2 rounded-full bg-gray-500 animate-bounce" style={{ animationDelay: '300ms' }} />
+                <div className="flex flex-col gap-1">
+                  <span className="text-xs font-medium text-gray-600">{botName}</span>
+                  <div className="flex items-center gap-2 rounded-2xl bg-gray-200 px-4 py-3">
+                    <div className="flex gap-1">
+                      <div className="h-2 w-2 rounded-full bg-gray-500 animate-bounce" style={{ animationDelay: '0ms' }} />
+                      <div className="h-2 w-2 rounded-full bg-gray-500 animate-bounce" style={{ animationDelay: '150ms' }} />
+                      <div className="h-2 w-2 rounded-full bg-gray-500 animate-bounce" style={{ animationDelay: '300ms' }} />
+                    </div>
+                    <span className="text-xs text-gray-500">typing...</span>
+                  </div>
                 </div>
               </div>
             )}

@@ -35,6 +35,7 @@ export default function Home() {
     language: 'auto', // Auto-detect language (or 'vi', 'en', etc.)
     useServerApi: true, // Use server-side API (more secure!)
     enableSmartSuggestions: true, // Enable smart follow-up questions after each response
+    enableSoundEffects: true, // Enable sound effects on interactions
   };
 
   return (

@@ -23,12 +23,19 @@ export function useChat(initialMessages: Message[] = []) {
     return newMessage;
   }, []);
 
-  const updateMessage = useCallback((id: string, updates: Partial<Message>) => {
+  const updateMessage = useCallback((id: string, updates: Partial<Message> | ((prev: string) => string)) => {
     setState(prev => ({
       ...prev,
-      messages: prev.messages.map(msg =>
-        msg.id === id ? { ...msg, ...updates } : msg
-      ),
+      messages: prev.messages.map(msg => {
+        if (msg.id === id) {
+          if (typeof updates === 'function') {
+            // Handle function update (for streaming)
+            return { ...msg, content: updates(msg.content) };
+          }
+          return { ...msg, ...updates };
+        }
+        return msg;
+      }),
     }));
   }, []);
 
@@ -48,6 +55,15 @@ export function useChat(initialMessages: Message[] = []) {
     });
   }, []);
 
+  const editMessage = useCallback((id: string, newContent: string) => {
+    setState(prev => ({
+      ...prev,
+      messages: prev.messages.map(msg =>
+        msg.id === id ? { ...msg, content: newContent, isEdited: true } : msg
+      ),
+    }));
+  }, []);
+
   return {
     messages: state.messages,
     isLoading: state.isLoading,
@@ -57,6 +73,7 @@ export function useChat(initialMessages: Message[] = []) {
     setLoading,
     setError,
     clearMessages,
+    editMessage,
   };
 }
 

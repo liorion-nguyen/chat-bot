@@ -8,6 +8,7 @@ import { useGemini } from '@/hooks/useGemini';
 import { useGeminiServer } from '@/hooks/useGeminiServer';
 import { ChatWidgetConfig, defaultConfig } from '@/types';
 import { applyTheme, getPositionClasses, getChatBoxPositionClasses } from '@/utils/themeUtils';
+import { soundEffects } from '@/utils/soundEffects';
 
 interface ChatWidgetProps {
   config: ChatWidgetConfig;
@@ -32,6 +33,8 @@ export default function ChatWidget({ config }: ChatWidgetProps) {
     updateMessage,
     setLoading,
     setError,
+    clearMessages,
+    editMessage,
   } = useChat();
 
   // Use server-side API or client-side API based on config
@@ -59,6 +62,11 @@ export default function ChatWidget({ config }: ChatWidgetProps) {
   useEffect(() => {
     applyTheme(fullConfig.theme);
   }, [fullConfig.theme]);
+
+  // Configure sound effects
+  useEffect(() => {
+    soundEffects.setEnabled(fullConfig.enableSoundEffects ?? true);
+  }, [fullConfig.enableSoundEffects]);
 
   // Generate smart follow-up suggestions
   const generateSuggestions = useCallback(
@@ -99,6 +107,11 @@ export default function ChatWidget({ config }: ChatWidgetProps) {
 
   const handleSendMessage = useCallback(
     async (messageText: string) => {
+      // Play send sound
+      if (fullConfig.enableSoundEffects) {
+        soundEffects.playSendSound();
+      }
+
       // Add user message
       addMessage({
         role: 'user',
@@ -142,6 +155,11 @@ export default function ChatWidget({ config }: ChatWidgetProps) {
             });
             setLoading(false);
             
+            // Play receive sound
+            if (fullConfig.enableSoundEffects) {
+              soundEffects.playReceiveSound();
+            }
+            
             // Check if chat is closed and increment unread count
             checkAndIncrementUnread();
 
@@ -169,10 +187,20 @@ export default function ChatWidget({ config }: ChatWidgetProps) {
 
   // Clear unread count when chat is opened
   const handleToggleChat = () => {
-    setIsOpen(!isOpen);
-    if (!isOpen) {
+    const willOpen = !isOpen;
+    setIsOpen(willOpen);
+    
+    if (willOpen) {
       // Opening chat - clear unread count
       setUnreadCount(0);
+      if (fullConfig.enableSoundEffects) {
+        soundEffects.playOpenSound();
+      }
+    } else {
+      // Closing chat
+      if (fullConfig.enableSoundEffects) {
+        soundEffects.playCloseSound();
+      }
     }
   };
 
@@ -190,6 +218,8 @@ export default function ChatWidget({ config }: ChatWidgetProps) {
             suggestions={fullConfig.suggestions}
             onSendMessage={handleSendMessage}
             onClose={() => setIsOpen(false)}
+            onClearMessages={clearMessages}
+            onEditMessage={editMessage}
             isLoading={isLoading}
             primaryColor={fullConfig.theme.primaryColor}
             userMessageBg={fullConfig.theme.userMessageBg}

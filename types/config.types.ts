@@ -26,6 +26,7 @@ export interface ChatWidgetConfig {
   botIconUrl?: string; // Custom avatar URL for bot messages (not corner icon)
   useServerApi?: boolean; // If true, uses server-side API (recommended). If false, calls Gemini directly from browser. Default: true
   enableSmartSuggestions?: boolean; // If true, generates 2 follow-up questions after each bot response (default: false)
+  enableSoundEffects?: boolean; // If true, plays sound effects on interactions (default: true)
 }
 
 export const defaultTheme: ChatWidgetTheme = {
@@ -53,6 +54,7 @@ export const defaultConfig: Partial<ChatWidgetConfig> = {
   language: 'auto',
   useServerApi: true, // Default to server-side API for security
   enableSmartSuggestions: false, // Default to off (can be enabled by user)
+  enableSoundEffects: true, // Default to on
 };
 
 // Language instructions for system prompt

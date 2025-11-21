@@ -5,6 +5,7 @@ export interface Message {
   timestamp: Date;
   isStreaming?: boolean;
   suggestions?: string[]; // Smart follow-up suggestions (only for assistant messages)
+  isEdited?: boolean; // Whether this message was edited
 }
 
 export interface ChatState {

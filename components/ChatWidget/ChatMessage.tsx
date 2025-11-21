@@ -1,8 +1,9 @@
 'use client';
 
+import { useState } from 'react';
 import { Message } from '@/types';
 import MessageMarkdown from '@/components/MarkdownRenderer/MessageMarkdown';
-import { Bot, User } from 'lucide-react';
+import { Bot, User, Copy, Check, ThumbsUp, ThumbsDown, Edit2, X as XIcon, Check as CheckIcon } from 'lucide-react';
 import Image from 'next/image';
 
 interface ChatMessageProps {
@@ -13,6 +14,7 @@ interface ChatMessageProps {
   botAvatarUrl?: string;
   primaryColor?: string;
   onSuggestionClick?: (suggestion: string) => void;
+  onEditMessage?: (messageId: string, newContent: string) => void;
   showSuggestions?: boolean; // Control whether to show suggestions
 }
 
@@ -24,10 +26,54 @@ export default function ChatMessage({
   botAvatarUrl,
   primaryColor = '#4F46E5',
   onSuggestionClick,
+  onEditMessage,
   showSuggestions = true
 }: ChatMessageProps) {
   const isUser = message.role === 'user';
   const hasSuggestions = !isUser && message.suggestions && message.suggestions.length > 0 && showSuggestions;
+  
+  // Copy functionality
+  const [copied, setCopied] = useState(false);
+  const [reaction, setReaction] = useState<'like' | 'dislike' | null>(null);
+  
+  // Edit functionality
+  const [isEditing, setIsEditing] = useState(false);
+  const [editedContent, setEditedContent] = useState(message.content);
+
+  const handleCopy = async () => {
+    try {
+      await navigator.clipboard.writeText(message.content);
+      setCopied(true);
+      setTimeout(() => setCopied(false), 2000);
+    } catch (err) {
+      console.error('Failed to copy:', err);
+    }
+  };
+
+  const handleReaction = (type: 'like' | 'dislike') => {
+    if (reaction === type) {
+      setReaction(null); // Remove reaction if clicking same button
+    } else {
+      setReaction(type);
+    }
+  };
+
+  const handleEdit = () => {
+    setIsEditing(true);
+    setEditedContent(message.content);
+  };
+
+  const handleSaveEdit = () => {
+    if (editedContent.trim() && editedContent !== message.content) {
+      onEditMessage?.(message.id, editedContent.trim());
+    }
+    setIsEditing(false);
+  };
+
+  const handleCancelEdit = () => {
+    setIsEditing(false);
+    setEditedContent(message.content);
+  };
   
   return (
     <div className={`flex gap-3 ${isUser ? 'flex-row-reverse' : 'flex-row'}`}>
@@ -67,29 +113,130 @@ export default function ChatMessage({
           }`}
           style={{ backgroundColor: isUser ? userMessageBg : botMessageBg }}
         >
-          {isUser ? (
-            <p className="text-sm whitespace-pre-wrap wrap-break-word">{message.content}</p>
-          ) : (
-            <div className="prose prose-sm max-w-none">
-              <MessageMarkdown content={message.content} />
+          {isEditing ? (
+            // Edit mode
+            <div className="flex flex-col gap-2">
+              <textarea
+                value={editedContent}
+                onChange={(e) => setEditedContent(e.target.value)}
+                className="w-full rounded border border-gray-300 p-2 text-sm text-gray-800 focus:border-blue-500 focus:outline-none"
+                rows={3}
+                autoFocus
+              />
+              <div className="flex gap-2">
+                <button
+                  onClick={handleSaveEdit}
+                  className="flex items-center gap-1 rounded bg-green-500 px-3 py-1 text-xs text-white hover:bg-green-600"
+                >
+                  <CheckIcon className="h-3 w-3" />
+                  Save
+                </button>
+                <button
+                  onClick={handleCancelEdit}
+                  className="flex items-center gap-1 rounded bg-gray-500 px-3 py-1 text-xs text-white hover:bg-gray-600"
+                >
+                  <XIcon className="h-3 w-3" />
+                  Cancel
+                </button>
+              </div>
             </div>
-          )}
-          
-          {/* Streaming indicator */}
-          {message.isStreaming && (
-            <span className="ml-1 inline-flex items-center">
-              <span className="animate-pulse">▋</span>
-            </span>
+          ) : (
+            // View mode
+            <>
+              {isUser ? (
+                <p className="text-sm whitespace-pre-wrap wrap-break-word">{message.content}</p>
+              ) : (
+                <div className="prose prose-sm max-w-none">
+                  <MessageMarkdown content={message.content} />
+                </div>
+              )}
+              
+              {/* Streaming indicator */}
+              {message.isStreaming && (
+                <span className="ml-1 inline-flex items-center">
+                  <span className="animate-pulse">▋</span>
+                </span>
+              )}
+              
+              {/* Edited indicator */}
+              {message.isEdited && (
+                <span className="ml-2 text-xs italic opacity-60">(edited)</span>
+              )}
+            </>
           )}
         </div>
 
-        {/* Timestamp */}
-        <span className="mt-1 text-xs text-gray-400">
-          {message.timestamp.toLocaleTimeString('en-US', { 
-            hour: '2-digit', 
-            minute: '2-digit' 
-          })}
-        </span>
+        {/* Action buttons row */}
+        <div className="mt-1 flex items-center gap-2">
+          {/* Timestamp */}
+          <span className="text-xs text-gray-400">
+            {message.timestamp.toLocaleTimeString('en-US', { 
+              hour: '2-digit', 
+              minute: '2-digit' 
+            })}
+          </span>
+
+          {/* Edit button (for user messages) */}
+          {isUser && !message.isStreaming && !isEditing && (
+            <button
+              onClick={handleEdit}
+              className="flex items-center gap-1 rounded px-2 py-1 text-xs text-gray-500 transition-colors hover:bg-gray-200 hover:text-gray-700"
+              title="Edit message"
+            >
+              <Edit2 className="h-3 w-3" />
+              <span>Edit</span>
+            </button>
+          )}
+
+          {/* Copy button (for bot messages) */}
+          {!isUser && !message.isStreaming && (
+            <button
+              onClick={handleCopy}
+              className="flex items-center gap-1 rounded px-2 py-1 text-xs text-gray-500 transition-colors hover:bg-gray-200 hover:text-gray-700"
+              title="Copy message"
+            >
+              {copied ? (
+                <>
+                  <Check className="h-3 w-3" />
+                  <span>Copied!</span>
+                </>
+              ) : (
+                <>
+                  <Copy className="h-3 w-3" />
+                  <span>Copy</span>
+                </>
+              )}
+            </button>
+          )}
+
+          {/* Reaction buttons (for bot messages) */}
+          {!isUser && !message.isStreaming && (
+            <div className="flex gap-1">
+              <button
+                onClick={() => handleReaction('like')}
+                className={`rounded p-1 transition-all ${
+                  reaction === 'like'
+                    ? 'bg-green-100 text-green-600'
+                    : 'text-gray-400 hover:bg-gray-200 hover:text-green-600'
+                }`}
+                title="Like this response"
+              >
+                <ThumbsUp className="h-3 w-3" />
+              </button>
+              <button
+                onClick={() => handleReaction('dislike')}
+                className={`rounded p-1 transition-all ${
+                  reaction === 'dislike'
+                    ? 'bg-red-100 text-red-600'
+                    : 'text-gray-400 hover:bg-gray-200 hover:text-red-600'
+                }`}
+                title="Dislike this response"
+              >
+                <ThumbsDown className="h-3 w-3" />
+              </button>
+            </div>
+          )}
+        </div>
 
         {/* Smart Suggestions (only for bot messages) */}
         {hasSuggestions && !message.isStreaming && (
