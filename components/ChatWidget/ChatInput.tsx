@@ -59,10 +59,16 @@ export default function ChatInput({
           placeholder={placeholder}
           disabled={disabled}
           rows={1}
-          className="flex-1 resize-none rounded-lg border border-gray-300 px-4 py-2 text-sm focus:border-transparent focus:outline-none focus:ring-2 disabled:cursor-not-allowed disabled:opacity-50"
+          className="flex-1 resize-none rounded-lg border border-gray-300 px-4 py-2 text-sm focus:outline-none disabled:cursor-not-allowed disabled:opacity-50"
           style={{ 
             maxHeight: '120px',
-            focusRingColor: primaryColor 
+            outline: `2px solid transparent`,
+          }}
+          onFocus={(e) => {
+            e.target.style.outline = `2px solid ${primaryColor}`;
+          }}
+          onBlur={(e) => {
+            e.target.style.outline = '2px solid transparent';
           }}
         />
         <button
