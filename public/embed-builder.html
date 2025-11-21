@@ -1,0 +1,797 @@
+<!DOCTYPE html>
+<html lang="vi">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>ChatBot Widget - Embedding Tool</title>
+  <style>
+    * {
+      margin: 0;
+      padding: 0;
+      box-sizing: border-box;
+    }
+
+    body {
+      font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Oxygen, Ubuntu, Cantarell, sans-serif;
+      background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+      min-height: 100vh;
+      padding: 20px;
+    }
+
+    .container {
+      max-width: 1400px;
+      margin: 0 auto;
+      background: white;
+      border-radius: 20px;
+      box-shadow: 0 20px 60px rgba(0,0,0,0.3);
+      overflow: hidden;
+    }
+
+    .header {
+      background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+      color: white;
+      padding: 30px;
+      text-align: center;
+    }
+
+    .header h1 {
+      font-size: 32px;
+      margin-bottom: 10px;
+    }
+
+    .header p {
+      opacity: 0.9;
+      font-size: 16px;
+    }
+
+    .content {
+      display: grid;
+      grid-template-columns: 1fr 1fr;
+      gap: 30px;
+      padding: 30px;
+    }
+
+    .section {
+      background: #f8f9fa;
+      padding: 25px;
+      border-radius: 12px;
+    }
+
+    .section h2 {
+      color: #333;
+      margin-bottom: 20px;
+      font-size: 20px;
+      display: flex;
+      align-items: center;
+      gap: 10px;
+    }
+
+    .form-group {
+      margin-bottom: 20px;
+    }
+
+    .form-group label {
+      display: block;
+      margin-bottom: 8px;
+      color: #555;
+      font-weight: 600;
+      font-size: 14px;
+    }
+
+    .form-group input,
+    .form-group select,
+    .form-group textarea {
+      width: 100%;
+      padding: 10px 15px;
+      border: 2px solid #e0e0e0;
+      border-radius: 8px;
+      font-size: 14px;
+      transition: border-color 0.3s;
+    }
+
+    .form-group input:focus,
+    .form-group select:focus,
+    .form-group textarea:focus {
+      outline: none;
+      border-color: #667eea;
+    }
+
+    .form-group input[type="color"] {
+      height: 50px;
+      cursor: pointer;
+    }
+
+    .form-group textarea {
+      resize: vertical;
+      min-height: 80px;
+      font-family: inherit;
+    }
+
+    .checkbox-group {
+      display: flex;
+      align-items: center;
+      gap: 10px;
+    }
+
+    .checkbox-group input[type="checkbox"] {
+      width: auto;
+      cursor: pointer;
+    }
+
+    .code-section {
+      background: #1e1e1e;
+      color: #d4d4d4;
+      padding: 20px;
+      border-radius: 8px;
+      margin-bottom: 15px;
+      position: relative;
+      overflow-x: auto;
+      max-width: 100%;
+    }
+
+    .code-section h3 {
+      color: #fff;
+      margin-bottom: 15px;
+      font-size: 16px;
+    }
+
+    .code-section pre {
+      margin: 0;
+      font-family: 'Courier New', monospace;
+      font-size: 13px;
+      line-height: 1.6;
+      padding-right: 80px; /* Space for copy button */
+    }
+
+    /* URL code: wrap to multiple lines for better readability */
+    .code-section pre.url-code {
+      white-space: pre-wrap;
+      word-wrap: break-word;
+      word-break: break-all; /* Break long URLs */
+      overflow-wrap: break-word;
+    }
+
+    /* Wrapped code for iframe and React */
+    .code-section pre.wrap-code {
+      white-space: pre-wrap;
+      word-wrap: break-word;
+      overflow-x: auto;
+    }
+
+    /* Scrollbar styling for code sections */
+    .code-section pre::-webkit-scrollbar {
+      height: 8px;
+    }
+
+    .code-section pre::-webkit-scrollbar-track {
+      background: #2d2d2d;
+      border-radius: 4px;
+    }
+
+    .code-section pre::-webkit-scrollbar-thumb {
+      background: #667eea;
+      border-radius: 4px;
+    }
+
+    .code-section pre::-webkit-scrollbar-thumb:hover {
+      background: #5568d3;
+    }
+
+    .copy-btn {
+      position: absolute;
+      top: 20px;
+      right: 20px;
+      background: #667eea;
+      color: white;
+      border: none;
+      padding: 8px 16px;
+      border-radius: 6px;
+      cursor: pointer;
+      font-size: 12px;
+      font-weight: 600;
+      transition: background 0.3s;
+    }
+
+    .copy-btn:hover {
+      background: #5568d3;
+    }
+
+    .copy-btn.copied {
+      background: #10b981;
+    }
+
+    .preview-link {
+      display: block;
+      background: #667eea;
+      color: white;
+      text-align: center;
+      padding: 15px;
+      border-radius: 8px;
+      text-decoration: none;
+      font-weight: 600;
+      margin-top: 15px;
+      transition: background 0.3s;
+    }
+
+    .preview-link:hover {
+      background: #5568d3;
+    }
+
+    .tabs {
+      display: flex;
+      gap: 10px;
+      margin-bottom: 15px;
+      border-bottom: 2px solid #e0e0e0;
+    }
+
+    .tab {
+      padding: 10px 20px;
+      background: none;
+      border: none;
+      cursor: pointer;
+      font-weight: 600;
+      color: #666;
+      border-bottom: 3px solid transparent;
+      transition: all 0.3s;
+    }
+
+    .tab.active {
+      color: #667eea;
+      border-bottom-color: #667eea;
+    }
+
+    .tab-content {
+      display: none;
+    }
+
+    .tab-content.active {
+      display: block;
+    }
+
+    .vue-tab-content {
+      display: none;
+    }
+
+    .vue-tab-content.active {
+      display: block;
+    }
+
+    .info-box {
+      background: #e3f2fd;
+      border-left: 4px solid #2196f3;
+      padding: 15px;
+      margin-bottom: 20px;
+      border-radius: 4px;
+      font-size: 14px;
+      color: #555;
+    }
+
+    .emoji {
+      font-size: 24px;
+    }
+
+    @media (max-width: 1024px) {
+      .content {
+        grid-template-columns: 1fr;
+      }
+    }
+  </style>
+</head>
+<body>
+  <div class="container">
+    <div class="header">
+      <h1>🤖 ChatBot Widget - Embedding Tool</h1>
+      <p>Configure và generate code để nhúng chatbot vào website của bạn</p>
+    </div>
+
+    <div class="content">
+      <!-- Left Panel: Configuration -->
+      <div>
+        <div class="section">
+          <h2><span class="emoji">⚙️</span> Configuration</h2>
+
+          <div class="info-box">
+            <strong>📝 Lưu ý:</strong> Bạn cần có Gemini API Key. 
+            <a href="https://makersuite.google.com/app/apikey" target="_blank" style="color: #2196f3;">Lấy API key tại đây</a>
+          </div>
+
+          <!-- Basic Settings -->
+          <div class="form-group">
+            <label>🤖 Tên Bot</label>
+            <input type="text" id="botName" value="AI Assistant" placeholder="AI Assistant">
+          </div>
+
+          <div class="form-group">
+            <label>👋 Tin nhắn chào mừng</label>
+            <input type="text" id="welcomeMessage" value="Xin chào! Tôi có thể giúp gì cho bạn?" placeholder="Xin chào!">
+          </div>
+
+          <div class="form-group">
+            <label>💬 Placeholder input</label>
+            <input type="text" id="placeholder" value="Nhập tin nhắn..." placeholder="Nhập tin nhắn...">
+          </div>
+
+          <div class="form-group">
+            <label>🎯 System Prompt</label>
+            <textarea id="systemPrompt" placeholder="You are a helpful assistant...">Bạn là trợ lý ảo thông minh, thân thiện và hữu ích.</textarea>
+          </div>
+
+          <div class="form-group">
+            <label>💡 Gợi ý (phân cách bằng dấu phẩy)</label>
+            <input type="text" id="suggestions" value="Xin chào, Bạn có thể làm gì?, Giúp tôi" placeholder="Câu 1, Câu 2, Câu 3">
+          </div>
+
+          <div class="form-group">
+            <label>🤖 AI Model</label>
+            <select id="model">
+              <option value="gemini-1.5-flash">gemini-1.5-flash (Nhanh, Free quota cao)</option>
+              <option value="gemini-1.5-pro">gemini-1.5-pro (Chất lượng cao)</option>
+              <option value="gemini-2.5-flash-lite">gemini-2.5-flash-lite (Siêu nhanh)</option>
+            </select>
+          </div>
+
+          <div class="form-group">
+            <label>🔑 Gemini API Key (tùy chọn nếu đã set trong .env)</label>
+            <input type="password" id="apiKey" placeholder="AIza... (để trống nếu dùng env)">
+          </div>
+
+          <!-- History Settings -->
+          <div class="form-group checkbox-group">
+            <input type="checkbox" id="enableHistory" checked>
+            <label for="enableHistory">🧠 Nhớ ngữ cảnh hội thoại (Context Awareness)</label>
+          </div>
+
+          <div class="form-group" id="historyLimitGroup">
+            <label>📝 Số tin nhắn tối đa nhớ</label>
+            <input type="number" id="maxHistoryMessages" value="20" min="5" max="100">
+          </div>
+        </div>
+
+        <div class="section">
+          <h2><span class="emoji">🎨</span> Theme & Colors</h2>
+
+          <div class="form-group">
+            <label>🎨 Màu chính (Primary)</label>
+            <input type="color" id="primaryColor" value="#4F46E5">
+          </div>
+
+          <div class="form-group">
+            <label>💬 Màu tin nhắn User</label>
+            <input type="color" id="userMessageBg" value="#4F46E5">
+          </div>
+
+          <div class="form-group">
+            <label>🤖 Màu tin nhắn Bot</label>
+            <input type="color" id="botMessageBg" value="#F3F4F6">
+          </div>
+
+          <div class="form-group">
+            <label>📍 Vị trí Widget</label>
+            <select id="position">
+              <option value="bottom-right">Góc phải dưới (bottom-right)</option>
+              <option value="bottom-left">Góc trái dưới (bottom-left)</option>
+              <option value="top-right">Góc phải trên (top-right)</option>
+              <option value="top-left">Góc trái trên (top-left)</option>
+            </select>
+          </div>
+        </div>
+      </div>
+
+      <!-- Right Panel: Generated Code -->
+      <div>
+        <div class="section">
+          <h2><span class="emoji">📋</span> Generated Code</h2>
+
+          <div class="tabs">
+            <button class="tab active" onclick="switchTab('url')">🔗 Direct URL</button>
+            <button class="tab" onclick="switchTab('iframe')">🖼️ iframe Embed</button>
+            <button class="tab" onclick="switchTab('react')">⚛️ React</button>
+            <button class="tab" onclick="switchTab('vue')">🟢 Vue.js</button>
+          </div>
+
+          <!-- URL Tab -->
+          <div id="url-tab" class="tab-content active">
+            <div class="code-section">
+              <h3>Direct URL</h3>
+              <button class="copy-btn" onclick="copyCode('url-code')">Copy</button>
+              <pre id="url-code" class="url-code"></pre>
+            </div>
+            <a href="#" id="preview-link" class="preview-link" target="_blank">🚀 Preview trong tab mới</a>
+          </div>
+
+          <!-- iframe Tab -->
+          <div id="iframe-tab" class="tab-content">
+            <div class="code-section">
+              <h3>HTML - iframe Embed</h3>
+              <button class="copy-btn" onclick="copyCode('iframe-code')">Copy</button>
+              <pre id="iframe-code" class="wrap-code"></pre>
+            </div>
+            <div class="info-box">
+              <strong>💡 Cách dùng:</strong> Copy đoạn code trên và paste vào HTML của website bạn (trước thẻ &lt;/body&gt;)
+            </div>
+          </div>
+
+          <!-- React Tab -->
+          <div id="react-tab" class="tab-content">
+            <div class="code-section">
+              <h3>React/Next.js Component</h3>
+              <button class="copy-btn" onclick="copyCode('react-code')">Copy</button>
+              <pre id="react-code" class="wrap-code"></pre>
+            </div>
+            <div class="info-box">
+              <strong>💡 Cách dùng:</strong> Import và sử dụng component ChatWidget trong React/Next.js app của bạn
+            </div>
+          </div>
+
+          <!-- Vue Tab -->
+          <div id="vue-tab" class="tab-content">
+            <div class="tabs" style="margin-bottom: 10px; border: none;">
+              <button class="tab active" onclick="switchVueTab('composition')" style="font-size: 12px; padding: 6px 12px;">Composition API (Vue 3)</button>
+              <button class="tab" onclick="switchVueTab('options')" style="font-size: 12px; padding: 6px 12px;">Options API (Vue 2/3)</button>
+            </div>
+
+            <!-- Composition API -->
+            <div id="vue-composition-tab" class="vue-tab-content active">
+              <div class="code-section">
+                <h3>Vue 3 - Composition API</h3>
+                <button class="copy-btn" onclick="copyCode('vue-composition-code')">Copy</button>
+                <pre id="vue-composition-code" class="wrap-code"></pre>
+              </div>
+            </div>
+
+            <!-- Options API -->
+            <div id="vue-options-tab" class="vue-tab-content">
+              <div class="code-section">
+                <h3>Vue 2/3 - Options API</h3>
+                <button class="copy-btn" onclick="copyCode('vue-options-code')">Copy</button>
+                <pre id="vue-options-code" class="wrap-code"></pre>
+              </div>
+            </div>
+
+            <div class="info-box">
+              <strong>💡 Cách dùng:</strong> Sử dụng iframe embed trong Vue template hoặc tạo wrapper component
+            </div>
+          </div>
+        </div>
+
+        <!-- Preview Section -->
+        <div class="section">
+          <h2><span class="emoji">👀</span> Live Preview</h2>
+          <div style="position: relative; width: 100%; height: 700px; border: 2px solid #e0e0e0; border-radius: 8px; overflow: hidden;">
+            <iframe id="preview-iframe" style="width: 100%; height: 100%; border: none;"></iframe>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <script>
+    // Generate code based on configuration
+    function generateCode() {
+      const config = {
+        botName: document.getElementById('botName').value,
+        welcomeMessage: document.getElementById('welcomeMessage').value,
+        placeholder: document.getElementById('placeholder').value,
+        systemPrompt: document.getElementById('systemPrompt').value,
+        suggestions: document.getElementById('suggestions').value,
+        model: document.getElementById('model').value,
+        apiKey: document.getElementById('apiKey').value,
+        enableHistory: document.getElementById('enableHistory').checked,
+        maxHistoryMessages: document.getElementById('maxHistoryMessages').value,
+        primaryColor: document.getElementById('primaryColor').value,
+        userMessageBg: document.getElementById('userMessageBg').value,
+        botMessageBg: document.getElementById('botMessageBg').value,
+        position: document.getElementById('position').value,
+      };
+
+      // Build URL parameters
+      const params = new URLSearchParams({
+        botName: config.botName,
+        welcomeMessage: config.welcomeMessage,
+        placeholder: config.placeholder,
+        systemPrompt: config.systemPrompt,
+        suggestions: config.suggestions,
+        model: config.model,
+        primaryColor: config.primaryColor,
+        userMessageBg: config.userMessageBg,
+        botMessageBg: config.botMessageBg,
+        position: config.position,
+        enableHistory: config.enableHistory,
+        maxHistoryMessages: config.maxHistoryMessages,
+      });
+
+      if (config.apiKey) {
+        params.append('apiKey', config.apiKey);
+      }
+
+      const baseUrl = window.location.origin;
+      const fullUrl = `${baseUrl}/chatwidget/chat?${params.toString()}`;
+
+      // Update URL code
+      document.getElementById('url-code').textContent = fullUrl;
+
+      // Update preview link
+      document.getElementById('preview-link').href = fullUrl;
+
+      // Update iframe code
+      const iframeCode = `<!-- Nhúng ChatBot vào website -->
+<iframe 
+  src="${fullUrl}"
+  style="
+    position: fixed;
+    bottom: 0;
+    right: 0;
+    width: 450px;
+    height: 700px;
+    border: none;
+    z-index: 9999;
+  "
+></iframe>`;
+      document.getElementById('iframe-code').textContent = iframeCode;
+
+      // Update React code
+      const reactCode = `import { ChatWidget } from '@/components/ChatWidget';
+
+export default function MyPage() {
+  const config = {
+    botName: "${config.botName}",
+    welcomeMessage: "${config.welcomeMessage}",
+    placeholder: "${config.placeholder}",
+    systemPrompt: \`${config.systemPrompt}\`,
+    model: "${config.model}",
+    geminiApiKey: process.env.NEXT_PUBLIC_GEMINI_API_KEY || "${config.apiKey}",
+    suggestions: ${JSON.stringify(config.suggestions.split(',').map(s => s.trim()))},
+    enableHistory: ${config.enableHistory},
+    maxHistoryMessages: ${config.maxHistoryMessages},
+    theme: {
+      primaryColor: "${config.primaryColor}",
+      userMessageBg: "${config.userMessageBg}",
+      botMessageBg: "${config.botMessageBg}",
+      position: "${config.position}",
+      // ... other theme options
+    },
+  };
+
+  return (
+    <div>
+      <h1>My Website</h1>
+      <ChatWidget config={config} />
+    </div>
+  );
+}`;
+      document.getElementById('react-code').textContent = reactCode;
+
+      // Update Vue Composition API code
+      const vueCompositionCode = `<template>
+  <div class="app">
+    <h1>My Vue App</h1>
+    
+    <!-- ChatBot Widget -->
+    <iframe
+      ref="chatWidget"
+      :src="chatbotUrl"
+      class="chatbot-widget"
+    ></iframe>
+  </div>
+</template>
+
+<script setup>
+import { computed } from 'vue';
+
+// Configuration
+const config = {
+  botName: '${config.botName}',
+  welcomeMessage: '${config.welcomeMessage}',
+  placeholder: '${config.placeholder}',
+  systemPrompt: '${config.systemPrompt}',
+  model: '${config.model}',
+  apiKey: '${config.apiKey}',
+  suggestions: '${config.suggestions}',
+  primaryColor: '${config.primaryColor}',
+  userMessageBg: '${config.userMessageBg}',
+  botMessageBg: '${config.botMessageBg}',
+  position: '${config.position}',
+  enableHistory: ${config.enableHistory},
+  maxHistoryMessages: ${config.maxHistoryMessages},
+};
+
+// Build chatbot URL
+const chatbotUrl = computed(() => {
+  const params = new URLSearchParams({
+    botName: config.botName,
+    welcomeMessage: config.welcomeMessage,
+    placeholder: config.placeholder,
+    systemPrompt: config.systemPrompt,
+    suggestions: config.suggestions,
+    model: config.model,
+    primaryColor: config.primaryColor,
+    userMessageBg: config.userMessageBg,
+    botMessageBg: config.botMessageBg,
+    position: config.position,
+    enableHistory: config.enableHistory,
+    maxHistoryMessages: config.maxHistoryMessages,
+  });
+  
+  if (config.apiKey) {
+    params.append('apiKey', config.apiKey);
+  }
+  
+  return 'http://localhost:3000/chatwidget/chat?' + params.toString();
+});
+<\/script>
+
+<style scoped>
+.chatbot-widget {
+  position: fixed;
+  bottom: 0;
+  right: 0;
+  width: 450px;
+  height: 700px;
+  border: none;
+  z-index: 9999;
+}
+
+@media (max-width: 768px) {
+  .chatbot-widget {
+    width: 100%;
+    height: 100%;
+  }
+}
+<\/style>`;
+      document.getElementById('vue-composition-code').textContent = vueCompositionCode;
+
+      // Update Vue Options API code
+      const vueOptionsCode = `<template>
+  <div class="app">
+    <h1>My Vue App</h1>
+    
+    <!-- ChatBot Widget -->
+    <iframe
+      ref="chatWidget"
+      :src="chatbotUrl"
+      class="chatbot-widget"
+    ></iframe>
+  </div>
+</template>
+
+<script>
+export default {
+  name: 'App',
+  
+  data() {
+    return {
+      config: {
+        botName: '${config.botName}',
+        welcomeMessage: '${config.welcomeMessage}',
+        placeholder: '${config.placeholder}',
+        systemPrompt: '${config.systemPrompt}',
+        model: '${config.model}',
+        apiKey: '${config.apiKey}',
+        suggestions: '${config.suggestions}',
+        primaryColor: '${config.primaryColor}',
+        userMessageBg: '${config.userMessageBg}',
+        botMessageBg: '${config.botMessageBg}',
+        position: '${config.position}',
+        enableHistory: ${config.enableHistory},
+        maxHistoryMessages: ${config.maxHistoryMessages},
+      }
+    };
+  },
+  
+  computed: {
+    chatbotUrl() {
+      const params = new URLSearchParams({
+        botName: this.config.botName,
+        welcomeMessage: this.config.welcomeMessage,
+        placeholder: this.config.placeholder,
+        systemPrompt: this.config.systemPrompt,
+        suggestions: this.config.suggestions,
+        model: this.config.model,
+        primaryColor: this.config.primaryColor,
+        userMessageBg: this.config.userMessageBg,
+        botMessageBg: this.config.botMessageBg,
+        position: this.config.position,
+        enableHistory: this.config.enableHistory,
+        maxHistoryMessages: this.config.maxHistoryMessages,
+      });
+      
+      if (this.config.apiKey) {
+        params.append('apiKey', this.config.apiKey);
+      }
+      
+      return 'http://localhost:3000/chatwidget/chat?' + params.toString();
+    }
+  },
+  
+  mounted() {
+    console.log('ChatBot widget loaded:', this.chatbotUrl);
+  }
+};
+<\/script>
+
+<style scoped>
+.chatbot-widget {
+  position: fixed;
+  bottom: 0;
+  right: 0;
+  width: 450px;
+  height: 700px;
+  border: none;
+  z-index: 9999;
+}
+
+@media (max-width: 768px) {
+  .chatbot-widget {
+    width: 100%;
+    height: 100%;
+  }
+}
+<\/style>`;
+      document.getElementById('vue-options-code').textContent = vueOptionsCode;
+
+      // Update live preview
+      document.getElementById('preview-iframe').src = fullUrl;
+    }
+
+    // Copy code to clipboard
+    function copyCode(elementId) {
+      const code = document.getElementById(elementId).textContent;
+      navigator.clipboard.writeText(code).then(() => {
+        const btn = event.target;
+        btn.textContent = '✓ Copied!';
+        btn.classList.add('copied');
+        setTimeout(() => {
+          btn.textContent = 'Copy';
+          btn.classList.remove('copied');
+        }, 2000);
+      });
+    }
+
+    // Switch tabs
+    function switchTab(tabName) {
+      // Update tab buttons
+      document.querySelectorAll('.tab').forEach(tab => {
+        tab.classList.remove('active');
+      });
+      event.target.classList.add('active');
+
+      // Update tab content
+      document.querySelectorAll('.tab-content').forEach(content => {
+        content.classList.remove('active');
+      });
+      document.getElementById(`${tabName}-tab`).classList.add('active');
+    }
+
+    // Switch Vue sub-tabs
+    function switchVueTab(tabName) {
+      // Update tab buttons in Vue section
+      const vueTabs = event.target.parentElement.querySelectorAll('.tab');
+      vueTabs.forEach(tab => tab.classList.remove('active'));
+      event.target.classList.add('active');
+
+      // Update Vue tab content
+      document.querySelectorAll('.vue-tab-content').forEach(content => {
+        content.classList.remove('active');
+      });
+      document.getElementById(`vue-${tabName}-tab`).classList.add('active');
+    }
+
+    // Toggle history limit input
+    document.getElementById('enableHistory').addEventListener('change', function() {
+      document.getElementById('historyLimitGroup').style.display = 
+        this.checked ? 'block' : 'none';
+      generateCode();
+    });
+
+    // Add event listeners to all inputs
+    document.querySelectorAll('input, select, textarea').forEach(element => {
+      element.addEventListener('input', generateCode);
+      element.addEventListener('change', generateCode);
+    });
+
+    // Initial generation
+    generateCode();
+  </script>
+</body>
+</html>
+
