@@ -25,6 +25,9 @@ export default function ChatWidgetPage() {
     // Parse language setting
     const language = searchParams.get('language') || 'auto';
     
+    // Parse smart suggestions setting
+    const enableSmartSuggestions = searchParams.get('enableSmartSuggestions') === 'true'; // Default: false
+    
     // Parse bot icon URL
     const botIconUrl = searchParams.get('botIconUrl') || '';
 
@@ -70,6 +73,7 @@ export default function ChatWidgetPage() {
       enableHistory,
       maxHistoryMessages,
       language,
+      enableSmartSuggestions,
       botIconUrl,
     } as ChatWidgetConfig;
 

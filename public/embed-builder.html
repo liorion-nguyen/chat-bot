@@ -368,6 +368,12 @@
               <option value="es">Tiếng Tây Ban Nha (Spanish)</option>
             </select>
           </div>
+
+          <!-- Smart Suggestions -->
+          <div class="form-group checkbox-group">
+            <input type="checkbox" id="enableSmartSuggestions">
+            <label for="enableSmartSuggestions">💡 Gợi ý câu hỏi tiếp theo (Smart Suggestions)</label>
+          </div>
         </div>
 
         <div class="section">
@@ -502,6 +508,7 @@
         enableHistory: document.getElementById('enableHistory').checked,
         maxHistoryMessages: document.getElementById('maxHistoryMessages').value,
         language: document.getElementById('language').value,
+        enableSmartSuggestions: document.getElementById('enableSmartSuggestions').checked,
         botIconUrl: document.getElementById('botIconUrl').value,
         primaryColor: document.getElementById('primaryColor').value,
         userMessageBg: document.getElementById('userMessageBg').value,
@@ -524,6 +531,7 @@
         enableHistory: config.enableHistory,
         maxHistoryMessages: config.maxHistoryMessages,
         language: config.language,
+        enableSmartSuggestions: config.enableSmartSuggestions,
       });
 
       if (config.apiKey) {
@@ -624,6 +632,7 @@ const config = {
   enableHistory: ${config.enableHistory},
   maxHistoryMessages: ${config.maxHistoryMessages},
   language: '${config.language}',
+  enableSmartSuggestions: ${config.enableSmartSuggestions},
   botIconUrl: '${config.botIconUrl}',
 };
 
@@ -643,6 +652,7 @@ const chatbotUrl = computed(() => {
     enableHistory: config.enableHistory,
     maxHistoryMessages: config.maxHistoryMessages,
     language: config.language,
+    enableSmartSuggestions: config.enableSmartSuggestions,
     botIconUrl: config.botIconUrl,
   });
   
@@ -709,6 +719,7 @@ export default {
         enableHistory: ${config.enableHistory},
         maxHistoryMessages: ${config.maxHistoryMessages},
         language: '${config.language}',
+        enableSmartSuggestions: ${config.enableSmartSuggestions},
         botIconUrl: '${config.botIconUrl}',
       }
     };
@@ -730,6 +741,7 @@ export default {
         enableHistory: this.config.enableHistory,
         maxHistoryMessages: this.config.maxHistoryMessages,
         language: this.config.language,
+        enableSmartSuggestions: this.config.enableSmartSuggestions,
         botIconUrl: this.config.botIconUrl,
       });
       

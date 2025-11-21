@@ -11,6 +11,9 @@ interface ChatMessageProps {
   userMessageBg?: string;
   botMessageBg?: string;
   botAvatarUrl?: string;
+  primaryColor?: string;
+  onSuggestionClick?: (suggestion: string) => void;
+  showSuggestions?: boolean; // Control whether to show suggestions
 }
 
 export default function ChatMessage({ 
@@ -18,9 +21,13 @@ export default function ChatMessage({
   botName,
   userMessageBg = '#4F46E5',
   botMessageBg = '#F3F4F6',
-  botAvatarUrl
+  botAvatarUrl,
+  primaryColor = '#4F46E5',
+  onSuggestionClick,
+  showSuggestions = true
 }: ChatMessageProps) {
   const isUser = message.role === 'user';
+  const hasSuggestions = !isUser && message.suggestions && message.suggestions.length > 0 && showSuggestions;
   
   return (
     <div className={`flex gap-3 ${isUser ? 'flex-row-reverse' : 'flex-row'}`}>
@@ -83,6 +90,36 @@ export default function ChatMessage({
             minute: '2-digit' 
           })}
         </span>
+
+        {/* Smart Suggestions (only for bot messages) */}
+        {hasSuggestions && !message.isStreaming && (
+          <div className="mt-2 flex flex-col gap-2">
+            {message.suggestions!.map((suggestion, index) => (
+              <button
+                key={index}
+                onClick={() => onSuggestionClick?.(suggestion)}
+                className="group relative overflow-hidden rounded-lg border border-gray-300 bg-white px-3 py-2 text-left text-sm text-gray-700 shadow-sm transition-all duration-200 hover:border-transparent hover:shadow-md"
+                style={{
+                  borderColor: 'transparent',
+                  '--hover-bg': primaryColor,
+                } as React.CSSProperties}
+                onMouseEnter={(e) => {
+                  e.currentTarget.style.borderColor = primaryColor;
+                  e.currentTarget.style.backgroundColor = `${primaryColor}10`;
+                }}
+                onMouseLeave={(e) => {
+                  e.currentTarget.style.borderColor = '#D1D5DB';
+                  e.currentTarget.style.backgroundColor = 'white';
+                }}
+              >
+                <span className="flex items-center gap-2">
+                  <span className="text-xs opacity-60">💡</span>
+                  <span>{suggestion}</span>
+                </span>
+              </button>
+            ))}
+          </div>
+        )}
       </div>
     </div>
   );

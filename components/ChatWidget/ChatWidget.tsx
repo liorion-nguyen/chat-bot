@@ -60,6 +60,43 @@ export default function ChatWidget({ config }: ChatWidgetProps) {
     applyTheme(fullConfig.theme);
   }, [fullConfig.theme]);
 
+  // Generate smart follow-up suggestions
+  const generateSuggestions = useCallback(
+    async (userMessage: string, botResponse: string, messageId: string) => {
+      if (!fullConfig.enableSmartSuggestions) return;
+
+      try {
+        const response = await fetch('/api/suggestions', {
+          method: 'POST',
+          headers: {
+            'Content-Type': 'application/json',
+          },
+          body: JSON.stringify({
+            userMessage,
+            botResponse,
+            apiKey: fullConfig.geminiApiKey,
+            model: fullConfig.model,
+            language: fullConfig.language,
+          }),
+        });
+
+        if (response.ok) {
+          const data = await response.json();
+          if (data.suggestions && data.suggestions.length > 0) {
+            // Update message with suggestions
+            updateMessage(messageId, {
+              suggestions: data.suggestions,
+            });
+          }
+        }
+      } catch (error) {
+        console.error('Failed to generate suggestions:', error);
+        // Silently fail - suggestions are not critical
+      }
+    },
+    [fullConfig.enableSmartSuggestions, fullConfig.geminiApiKey, fullConfig.model, fullConfig.language, updateMessage]
+  );
+
   const handleSendMessage = useCallback(
     async (messageText: string) => {
       // Add user message
@@ -98,7 +135,7 @@ export default function ChatWidget({ config }: ChatWidgetProps) {
               isStreaming: true,
             });
           },
-          onComplete: (fullResponse) => {
+          onComplete: async (fullResponse) => {
             updateMessage(assistantMessage.id, {
               content: fullResponse,
               isStreaming: false,
@@ -107,6 +144,11 @@ export default function ChatWidget({ config }: ChatWidgetProps) {
             
             // Check if chat is closed and increment unread count
             checkAndIncrementUnread();
+
+            // Generate smart follow-up suggestions (non-blocking)
+            if (fullConfig.enableSmartSuggestions) {
+              generateSuggestions(messageText, fullResponse, assistantMessage.id);
+            }
           },
           onError: (err) => {
             setError(err.message);
@@ -122,7 +164,7 @@ export default function ChatWidget({ config }: ChatWidgetProps) {
         setLoading(false);
       }
     },
-    [addMessage, updateMessage, setLoading, setError, sendMessage, isOpen]
+    [addMessage, updateMessage, setLoading, setError, sendMessage, isOpen, fullConfig.enableSmartSuggestions, generateSuggestions]
   );
 
   // Clear unread count when chat is opened

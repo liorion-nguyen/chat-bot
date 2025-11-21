@@ -25,6 +25,7 @@ export interface ChatWidgetConfig {
   language?: 'auto' | 'vi' | 'en' | 'zh' | 'ja' | 'ko' | 'fr' | 'de' | 'es'; // Response language (default: 'auto')
   botIconUrl?: string; // Custom avatar URL for bot messages (not corner icon)
   useServerApi?: boolean; // If true, uses server-side API (recommended). If false, calls Gemini directly from browser. Default: true
+  enableSmartSuggestions?: boolean; // If true, generates 2 follow-up questions after each bot response (default: false)
 }
 
 export const defaultTheme: ChatWidgetTheme = {
@@ -51,6 +52,7 @@ export const defaultConfig: Partial<ChatWidgetConfig> = {
   maxHistoryMessages: 20,
   language: 'auto',
   useServerApi: true, // Default to server-side API for security
+  enableSmartSuggestions: false, // Default to off (can be enabled by user)
 };
 
 // Language instructions for system prompt

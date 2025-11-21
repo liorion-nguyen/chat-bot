@@ -123,16 +123,26 @@ export default function ChatBox({
             )}
 
             {/* Messages */}
-            {messages.map((message) => (
-              <ChatMessage
-                key={message.id}
-                message={message}
-                botName={botName}
-                userMessageBg={userMessageBg}
-                botMessageBg={botMessageBg}
-                botAvatarUrl={botAvatarUrl}
-              />
-            ))}
+            {messages.map((message, index) => {
+              // Only show suggestions for the last assistant message
+              const isLastAssistantMessage = 
+                message.role === 'assistant' && 
+                index === messages.length - 1;
+              
+              return (
+                <ChatMessage
+                  key={message.id}
+                  message={message}
+                  botName={botName}
+                  userMessageBg={userMessageBg}
+                  botMessageBg={botMessageBg}
+                  botAvatarUrl={botAvatarUrl}
+                  primaryColor={primaryColor}
+                  onSuggestionClick={handleSendMessage}
+                  showSuggestions={isLastAssistantMessage}
+                />
+              );
+            })}
 
             {/* Loading indicator */}
             {isLoading && messages[messages.length - 1]?.role !== 'assistant' && (

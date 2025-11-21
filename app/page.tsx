@@ -34,6 +34,7 @@ export default function Home() {
     maxHistoryMessages: 20, // Remember last 20 messages
     language: 'auto', // Auto-detect language (or 'vi', 'en', etc.)
     useServerApi: true, // Use server-side API (more secure!)
+    enableSmartSuggestions: true, // Enable smart follow-up questions after each response
   };
 
   return (

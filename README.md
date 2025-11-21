@@ -118,6 +118,7 @@ Widget nhận các thông số cấu hình khi được nhúng:
 | `enableHistory` | boolean | Bật/tắt conversation context |
 | `language` | string | Ngôn ngữ trả lời: `auto`, `vi`, `en`, etc. |
 | `botIconUrl` | string | URL avatar của bot trong chat messages |
+| `enableSmartSuggestions` | boolean | **true** = Hiển thị 2 câu gợi ý sau mỗi câu trả lời (default: false) |
 
 ### 3. Tích Hợp Gemini AI
 - **API Communication**: Gửi tin nhắn người dùng đến Gemini API
