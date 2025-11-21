@@ -26,13 +26,14 @@ export default function Home() {
       'Explain quantum computing',
     ],
     systemPrompt: 'You are a helpful AI assistant. Be concise, friendly, and informative.',
-    geminiApiKey: process.env.NEXT_PUBLIC_GEMINI_API_KEY || '',
+    geminiApiKey: process.env.NEXT_PUBLIC_GEMINI_API_KEY || '', // Can provide key via config
     placeholder: 'Type your message...',
     welcomeMessage: '👋 Hi there! How can I help you today?',
-    model: 'gemini-2.5-flash-lite',
+    model: 'gemini-1.5-flash',
     enableHistory: true, // Enable conversation context
     maxHistoryMessages: 20, // Remember last 20 messages
     language: 'auto', // Auto-detect language (or 'vi', 'en', etc.)
+    useServerApi: true, // Use server-side API (more secure!)
   };
 
   return (

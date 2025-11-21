@@ -10,13 +10,40 @@ Tất cả các tính năng chính đã được triển khai và sẵn sàng s�
 
 ## 🚀 Quick Start - Sử dụng ngay
 
+**⚠️ BẢO MẬT:** Dự án giờ sử dụng **Server-Side API** mặc định để giấu API key!
+
+### Setup Nhanh (5 phút):
+
+1. **Cài đặt:**
+   ```bash
+   npm install
+   ```
+
+2. **Tạo `.env.local`:**
+   ```bash
+   GEMINI_API_KEY=your_gemini_api_key_here
+   ```
+
+3. **Chạy:**
+   ```bash
+   npm run dev
+   ```
+
+4. **Test:** Mở `http://localhost:3000` và chat!
+
+📖 **Chi tiết:** Xem `QUICKSTART.md` hoặc `SETUP_ENV.md`
+
+---
+
 ### Cách 1: Truy cập trực tiếp qua URL
 
 Bạn có thể sử dụng chatbot ngay lập tức bằng cách truy cập:
 
 ```
-http://localhost:3000/chatwidget/chat?botName=AI Assistant&apiKey=YOUR_API_KEY
+http://localhost:3000/chatwidget/chat?botName=AI Assistant
 ```
+
+**Lưu ý:** Không cần `apiKey` parameter nữa! API key giờ được giấu an toàn trên server.
 
 **Ví dụ đầy đủ:**
 
@@ -27,19 +54,24 @@ http://localhost:3000/chatwidget/chat?
   suggestions=Xin chào,Bạn có thể làm gì?,Giúp tôi&
   primaryColor=%234F46E5&
   position=bottom-right&
-  apiKey=YOUR_GEMINI_API_KEY
+  language=vi&
+  enableHistory=true
 ```
+
+**🔒 Bảo mật:** API key KHÔNG cần truyền qua URL nữa! Nó được giữ an toàn trên server.
 
 ### Cách 2: Nhúng vào website khác (iframe)
 
 ```html
 <iframe 
-  src="http://your-domain.com/chatwidget/chat?botName=AI Bot&apiKey=YOUR_KEY"
+  src="http://your-domain.com/chatwidget/chat?botName=AI Bot"
   width="100%"
   height="100%"
   style="border: none; position: fixed; bottom: 0; right: 0; width: 450px; height: 700px; z-index: 9999;"
 ></iframe>
 ```
+
+**🔒 Bảo mật:** Không cần `apiKey` parameter! API key được quản lý bởi server của bạn.
 
 ### Cách 3: Sử dụng trong React/Next.js
 
@@ -48,15 +80,22 @@ import { ChatWidget } from '@/components/ChatWidget';
 
 <ChatWidget config={{
   botName: 'AI Assistant',
-  geminiApiKey: 'YOUR_KEY',
-  // ... other config
+  systemPrompt: 'You are a helpful assistant.',
+  useServerApi: true, // ✅ Secure! (default)
+  geminiApiKey: '', // Not needed with server API
+  model: 'gemini-1.5-flash',
+  enableHistory: true,
+  language: 'auto',
 }} />
 ```
 
 **📖 Xem thêm:** 
-- `CHATWIDGET_API.md` - Chi tiết về các query parameters
-- `SETUP_GUIDE.md` - Hướng dẫn cài đặt chi tiết
-- `EMBEDDING_GUIDE.md` - Hướng dẫn nhúng vào website
+- 🚀 `QUICKSTART.md` - Setup trong 5 phút
+- 🔒 `SERVER_API_GUIDE.md` - Hướng dẫn Server API (BẢO MẬT!)
+- ⚙️ `SETUP_ENV.md` - Cấu hình environment variables
+- 📖 `CHATWIDGET_API.md` - Chi tiết về các tham số cấu hình
+- 🌐 `EMBEDDING_GUIDE.md` - Hướng dẫn nhúng vào website
+- 🎨 `FEATURES.md` - Tất cả tính năng
 
 ## Mô Tả Chức Năng
 
@@ -74,7 +113,11 @@ Widget nhận các thông số cấu hình khi được nhúng:
 | `theme` | object/string | Cấu hình màu sắc, theme của chatbot |
 | `suggestions` | string[] | Mảng các câu gợi ý hiển thị ban đầu |
 | `systemPrompt` | string | Prompt hệ thống để định hướng chatbot |
-| `geminiApiKey` | string | API key để kết nối với Gemini AI |
+| `useServerApi` | boolean | **true** = Server API (bảo mật), **false** = Client API |
+| `geminiApiKey` | string | ⚠️ Chỉ dùng khi `useServerApi=false` (không khuyến nghị) |
+| `enableHistory` | boolean | Bật/tắt conversation context |
+| `language` | string | Ngôn ngữ trả lời: `auto`, `vi`, `en`, etc. |
+| `botIconUrl` | string | URL avatar của bot trong chat messages |
 
 ### 3. Tích Hợp Gemini AI
 - **API Communication**: Gửi tin nhắn người dùng đến Gemini API

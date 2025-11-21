@@ -16,14 +16,15 @@ export interface ChatWidgetConfig {
   theme: ChatWidgetTheme;
   suggestions: string[];
   systemPrompt: string;
-  geminiApiKey: string;
+  geminiApiKey: string; // API key - can be provided via config OR .env file (GEMINI_API_KEY)
   placeholder?: string;
   welcomeMessage?: string;
   model?: string; // Default: gemini-1.5-flash (also available: gemini-1.5-pro)
   enableHistory?: boolean; // Enable conversation history context (default: true)
   maxHistoryMessages?: number; // Maximum number of messages to include in context (default: 20)
   language?: 'auto' | 'vi' | 'en' | 'zh' | 'ja' | 'ko' | 'fr' | 'de' | 'es'; // Response language (default: 'auto')
-  botIconUrl?: string; // Custom icon URL for the chat button (if not provided, uses default icon)
+  botIconUrl?: string; // Custom avatar URL for bot messages (not corner icon)
+  useServerApi?: boolean; // If true, uses server-side API (recommended). If false, calls Gemini directly from browser. Default: true
 }
 
 export const defaultTheme: ChatWidgetTheme = {
@@ -49,6 +50,7 @@ export const defaultConfig: Partial<ChatWidgetConfig> = {
   enableHistory: true,
   maxHistoryMessages: 20,
   language: 'auto',
+  useServerApi: true, // Default to server-side API for security
 };
 
 // Language instructions for system prompt

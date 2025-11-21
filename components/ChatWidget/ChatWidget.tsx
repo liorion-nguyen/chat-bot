@@ -5,6 +5,7 @@ import ChatIcon from './ChatIcon';
 import ChatBox from './ChatBox';
 import { useChat } from '@/hooks/useChat';
 import { useGemini } from '@/hooks/useGemini';
+import { useGeminiServer } from '@/hooks/useGeminiServer';
 import { ChatWidgetConfig, defaultConfig } from '@/types';
 import { applyTheme, getPositionClasses, getChatBoxPositionClasses } from '@/utils/themeUtils';
 
@@ -33,14 +34,26 @@ export default function ChatWidget({ config }: ChatWidgetProps) {
     setError,
   } = useChat();
 
-  const { sendMessage } = useGemini({
-    apiKey: fullConfig.geminiApiKey,
+  // Use server-side API or client-side API based on config
+  const useServerApi = fullConfig.useServerApi ?? true; // Default to server API for security
+
+  const geminiClient = useGemini({
+    apiKey: fullConfig.geminiApiKey || '',
     model: fullConfig.model,
     systemPrompt: fullConfig.systemPrompt,
     enableHistory: fullConfig.enableHistory,
     maxHistoryMessages: fullConfig.maxHistoryMessages,
     language: fullConfig.language,
   });
+
+  const geminiServer = useGeminiServer({
+    apiKey: fullConfig.geminiApiKey, // Pass API key to server
+    model: fullConfig.model,
+    systemPrompt: fullConfig.systemPrompt,
+    language: fullConfig.language,
+  });
+
+  const { sendMessage } = useServerApi ? geminiServer : geminiClient;
 
   // Apply theme on mount and when theme changes
   useEffect(() => {
